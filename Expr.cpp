@@ -30,3 +30,11 @@ Unary(Token op, Expr right): op(op), right(right){}
 Token op;
 Expr right;
 };
+template <typename T>
+class Visitor {
+virtual T visitBinaryExpr(Expr::Binary binary);
+virtual T visitGroupingExpr(Expr::Grouping grouping);
+virtual T visitLiteralExpr(Expr::Literal literal);
+virtual T visitUnaryExpr(Expr::Unary unary);
+};
+

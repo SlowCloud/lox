@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#define ENDL '\n'
+
 // TODO: ' ' delim으로 쓰는 토크나이저 별도로 구현하기?
 
 // code from https://stackoverflow.com/questions/216823/how-can-i-trim-a-stdstring
@@ -129,7 +131,7 @@ struct classScaffold {
         subclasses(subclasses)
     {}
 
-    std::string build() const {
+    std::string defineClass() const {
         std::stringstream ss;
         ss << classOpen();
         ss << buildConstructor();
@@ -138,7 +140,27 @@ struct classScaffold {
         ss << classClose();
         return ss.str();
     }
+
+    // only for parent class
+    std::string defineVisitor() const {
+        std::stringstream ss;
+
+        ss << "template <typename T>" << ENDL;
+        ss << "class Visitor {" << ENDL;
+
+        for(const classScaffold subclass : subclasses) {
+            std::string lowClassName = subclass.className;
+            lowClassName[0] = tolower(lowClassName[0]);
+            ss << "virtual T visit" << subclass.className << className
+                << "(" << className << "::" << subclass.className << ' ' << lowClassName << ");" << ENDL;
+        }
+
+        ss << "};" << ENDL;
+
+        return ss.str();
+    }
 };
+
 
 std::vector<Field> buildFields(const std::string& fieldList) {
     std::stringstream fieldstream(fieldList);
@@ -180,12 +202,16 @@ void defineAst(const std::string& outputDir, const std::string& baseName, const 
     }
 
     // base class 생성
-    fs << classScaffold("Expr", subclasses).build() << std::endl;
+    const auto baseClass = classScaffold("Expr", subclasses);
+    fs << baseClass.defineClass() << ENDL;
 
     // base class 상속한 classes 생성
     for(const auto& subclass : subclasses) {
-        fs << subclass.build() << std::endl;
+        fs << subclass.defineClass() << ENDL;
     }
+
+    // visitor 생성
+    fs << baseClass.defineVisitor() << ENDL;
 
 }
 
