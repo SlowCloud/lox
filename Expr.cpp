@@ -7,24 +7,24 @@ class Grouping;
 class Literal;
 class Unary;
 };
-class Binary: Expr {
+class Expr::Binary: Expr {
 public:
 Binary(Expr left, Token op, Expr right): left(left), op(op), right(right){}
 Expr left;
 Token op;
 Expr right;
 };
-class Grouping: Expr {
+class Expr::Grouping: Expr {
 public:
 Grouping(Expr expression): expression(expression){}
 Expr expression;
 };
-class Literal: Expr {
+class Expr::Literal: Expr {
 public:
 Literal(void* value): value(value){}
 void* value;
 };
-class Unary: Expr {
+class Expr::Unary: Expr {
 public:
 Unary(Token op, Expr right): op(op), right(right){}
 Token op;

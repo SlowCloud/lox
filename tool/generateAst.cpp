@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-// TODO: ' ' delim으로 쓰는 토크나이저 별도로 재구현하기
+// TODO: ' ' delim으로 쓰는 토크나이저 별도로 구현하기?
 
 // code from https://stackoverflow.com/questions/216823/how-can-i-trim-a-stdstring
 inline void ltrim(std::string &s) {
@@ -24,8 +24,7 @@ inline void trim(std::string& s) {
 }
 
 
-class Field {
-    public:
+struct Field {
     std::string type, name;
     Field(std::string type, std::string name): type(type), name(name)
     {}
@@ -52,9 +51,11 @@ struct classScaffold {
     std::string classOpen() const {
         std::stringstream ss;
 
-        ss << "class " << className;
         if(!parentClassName.empty()) {
-            ss << ": " << parentClassName;
+            ss << "class " << parentClassName << "::" << className << ": " << parentClassName;
+        }
+        else {
+            ss << "class " << className;
         }
         ss << " {\n";
         ss << "public:\n";
