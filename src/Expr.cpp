@@ -52,9 +52,8 @@ return visitor.acceptUnaryExpr(*this);
 };
 template <typename T>
 class Visitor {
-virtual T visitBinaryExpr(typename Expr<T>::Binary &binary);
-virtual T visitGroupingExpr(typename Expr<T>::Grouping &grouping);
-virtual T visitLiteralExpr(typename Expr<T>::Literal &literal);
-virtual T visitUnaryExpr(typename Expr<T>::Unary &unary);
+virtual T visitBinaryExpr(typename Expr<T>::Binary & expr);
+virtual T visitGroupingExpr(typename Expr<T>::Grouping & expr);
+virtual T visitLiteralExpr(typename Expr<T>::Literal & expr);
+virtual T visitUnaryExpr(typename Expr<T>::Unary & expr);
 };
-

@@ -184,7 +184,7 @@ struct classScaffold {
             std::string lowClassName = subclass.className;
             lowClassName[0] = tolower(lowClassName[0]);
             ss << "virtual T visit" << subclass.className << className
-                << "(typename " << className << "<T>::" << subclass.className << " &" << lowClassName << ");" << ENDL;
+                << "(typename " << className << "<T>::" << subclass.className << " & expr);" << ENDL;
         }
 
         ss << "};" << ENDL;
@@ -215,8 +215,7 @@ void defineAst(const std::string& outputDir, const std::string& baseName, const 
         exit(1);
     }
 
-    /// #include "main.cpp"
-    fs << "#include \"main.cpp\"\n";
+    fs << "#include \"Scanner.cpp\"\n";
 
     std::vector<classScaffold> subclasses;
     for(const std::string& type : types) {

@@ -1,42 +1,7 @@
-
-#include <iostream>
 #include <map>
-#include <sstream>
 #include <string>
-#include <vector>
 
-namespace Lox {
-    static void report(size_t line, std::string where, std::string message) {
-        std::cerr << "[line " << line << "] Error" << where << ": " << message << std::endl;
-    }
-
-    void error(size_t line, std::string message) {
-        Lox::report(line, "", message);
-    }
-}
-
-
-
-enum TokenType {
-  // Single-character tokens.
-  LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
-  COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
-
-  // One or two character tokens.
-  BANG, BANG_EQUAL,
-  EQUAL, EQUAL_EQUAL,
-  GREATER, GREATER_EQUAL,
-  LESS, LESS_EQUAL,
-
-  // Literals.
-  IDENTIFIER, STRING, NUMBER,
-
-  // Keywords.
-  AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
-  PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
-
-  END_OF_FILE
-};
+#include "Lox.h"
 
 static std::map<std::string, TokenType> keywords = {
   {"and",    AND},
@@ -57,25 +22,8 @@ static std::map<std::string, TokenType> keywords = {
   {"while",  WHILE},
 };
 
-struct Token {
-    TokenType type;
-    std::string lexeme;
-    void* literal;
-    size_t line;
-
-    Token(TokenType type, std::string lexeme, void* literal, size_t line):
-        type(type), lexeme(lexeme), literal(literal), line(line) {}
-
-    std::string toString() const {
-        std::string res;
-        std::stringstream ss(res);
-        ss << "type: " << type << ", lexeme: " << lexeme << ", line: " << line;
-        std::string now = ss.str();
-        return now;
-    }
-};
-
 class Scanner {
+    private:
     const std::string& src;
     std::vector<Token> tokens;
 
@@ -102,7 +50,7 @@ class Scanner {
     void addToken(TokenType type, void* literal) {
         // 성능에 안 좋겠지만 일단 진행
         std::string text = src.substr(start, current - start);
-        tokens.push_back(Token(type, text, literal, line));
+        tokens.push_back(Token{type, text, literal, line});
     }
 
     bool match(char expected) {
@@ -236,7 +184,7 @@ public:
             start = current;
             scanToken();
         }
-        tokens.push_back(Token(END_OF_FILE, "", nullptr, line));
+        tokens.push_back(Token {END_OF_FILE, "", nullptr, line });
         return std::move(tokens);
     }
 };
