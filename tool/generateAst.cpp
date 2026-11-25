@@ -54,7 +54,7 @@ struct classScaffold {
         std::stringstream ss;
 
         if(!parentClassName.empty()) {
-            ss << "class " << parentClassName << "::" << className << ": " << parentClassName;
+            ss << "class " << parentClassName << "<T>::" << className << ": " << parentClassName;
         }
         else {
             ss << "class " << className;
@@ -63,6 +63,10 @@ struct classScaffold {
         ss << "public:\n";
 
         return ss.str();
+    }
+
+    std::string buildTemplate() const {
+        return "template <typename T>\n";
     }
 
     // className(Field1 field1, ...): field1(field1), ... {}
@@ -108,6 +112,21 @@ struct classScaffold {
         return ss.str();
     }
 
+    std::string buildVisitorAccept() const {
+        return "virtual T accept(Visitor<T> &visitor);\n";
+    }
+
+    std::string buildVisitorAcceptConcrete() const {
+        std::stringstream ss;
+
+        ss << "T accept(Visitor<T> &visitor) override {\n";
+        // 근데 이거 타입 따라서 오버로드 되지 않나? 왜 함수를 분리했지?
+        ss << "return visitor.accept" << className << parentClassName << "(*this);\n";
+        ss << "}\n";
+
+        return ss.str();
+    }
+
     std::string classClose() const {
         std::stringstream ss;
         ss << "};";
@@ -133,10 +152,23 @@ struct classScaffold {
 
     std::string defineClass() const {
         std::stringstream ss;
+        ss << buildTemplate();
         ss << classOpen();
         ss << buildConstructor();
         ss << buildFields();
         ss << buildSubclasses();
+        ss << buildVisitorAccept();
+        ss << classClose();
+        return ss.str();
+    }
+
+    std::string defineSubClass() const {
+        std::stringstream ss;
+        ss << buildTemplate();
+        ss << classOpen();
+        ss << buildConstructor();
+        ss << buildFields();
+        ss << buildVisitorAcceptConcrete();
         ss << classClose();
         return ss.str();
     }
@@ -152,7 +184,7 @@ struct classScaffold {
             std::string lowClassName = subclass.className;
             lowClassName[0] = tolower(lowClassName[0]);
             ss << "virtual T visit" << subclass.className << className
-                << "(" << className << "::" << subclass.className << ' ' << lowClassName << ");" << ENDL;
+                << "(typename " << className << "<T>::" << subclass.className << " &" << lowClassName << ");" << ENDL;
         }
 
         ss << "};" << ENDL;
@@ -201,13 +233,17 @@ void defineAst(const std::string& outputDir, const std::string& baseName, const 
         subclasses.push_back(classScaffold(className, baseName, fieldList));
     }
 
+    // visitor 정의
+    fs << "template <typename T>" << ENDL;
+    fs << "class Visitor;" << ENDL;
+
     // base class 생성
-    const auto baseClass = classScaffold("Expr", subclasses);
+    const classScaffold baseClass = classScaffold("Expr", subclasses);
     fs << baseClass.defineClass() << ENDL;
 
     // base class 상속한 classes 생성
     for(const auto& subclass : subclasses) {
-        fs << subclass.defineClass() << ENDL;
+        fs << subclass.defineSubClass() << ENDL;
     }
 
     // visitor 생성
