@@ -10,6 +10,8 @@
 #define ENDL '\n'
 
 // TODO: ' ' delim으로 쓰는 토크나이저 별도로 구현하기?
+// TODO: accept 등에서 템플릿 대신 void*로 반환하도록 변경하기.
+// TODO: 디렉터리 원래 상태로 다 되돌려놓기.
 
 // code from https://stackoverflow.com/questions/216823/how-can-i-trim-a-stdstring
 inline void ltrim(std::string &s) {
@@ -48,13 +50,13 @@ struct classScaffold {
     std::vector<Field> fields;
     std::vector<classScaffold> subclasses;
 
-    // class className: baseName {
+    // class className: public baseName {
     // public:
     std::string classOpen() const {
         std::stringstream ss;
 
         if(!parentClassName.empty()) {
-            ss << "class " << parentClassName << "<T>::" << className << ": " << parentClassName;
+            ss << "class " << parentClassName << "::" << className << ": public " << parentClassName;
         }
         else {
             ss << "class " << className;
@@ -65,18 +67,18 @@ struct classScaffold {
         return ss.str();
     }
 
-    std::string buildTemplate() const {
-        return "template <typename T>\n";
-    }
-
-    // className(Field1 field1, ...): field1(field1), ... {}
+    // className(Field1 *field1, ...): field1(field1), ... {}
     std::string buildConstructor() const {
         std::stringstream ss;
 
         // parameters
         ss << className << '(';
         for(int i=0;i<fields.size();i++) {
-            ss << fields[i].type << ' ' << fields[i].name;
+            if(fields[i].type == "void*") {
+                ss << fields[i].type << " " << fields[i].name;
+            } else {
+                ss << fields[i].type << " *" << fields[i].name;
+            }
             if(i + 1 != fields.size()) ss << ", ";
         }
         ss << ')';
@@ -94,11 +96,15 @@ struct classScaffold {
         return ss.str();
     }
 
-    // Field1 field1; Field2 field2; ...
+    // Field1 *field1; Field2 *field2; ...
     std::string buildFields() const {
         std::stringstream ss;
         for(const Field& field : fields) {
-            ss << field.type << ' ' << field.name << ";\n";
+            if(field.type == "void*") {
+                ss << field.type << " " << field.name << ";\n";
+            } else {
+                ss << field.type << " *" << field.name << ";\n";
+            }
         }
         return ss.str();
     }
@@ -113,15 +119,14 @@ struct classScaffold {
     }
 
     std::string buildVisitorAccept() const {
-        return "virtual T accept(Visitor<T> &visitor);\n";
+        return "virtual void* accept(Visitor *visitor);\n";
     }
 
     std::string buildVisitorAcceptConcrete() const {
         std::stringstream ss;
 
-        ss << "T accept(Visitor<T> &visitor) override {\n";
-        // 근데 이거 타입 따라서 오버로드 되지 않나? 왜 함수를 분리했지?
-        ss << "return visitor.accept" << className << parentClassName << "(*this);\n";
+        ss << "void* accept(Visitor *visitor) override {\n";
+        ss << "return visitor->visit" << className << parentClassName << "(this);\n";
         ss << "}\n";
 
         return ss.str();
@@ -152,7 +157,6 @@ struct classScaffold {
 
     std::string defineClass() const {
         std::stringstream ss;
-        ss << buildTemplate();
         ss << classOpen();
         ss << buildConstructor();
         ss << buildFields();
@@ -164,7 +168,6 @@ struct classScaffold {
 
     std::string defineSubClass() const {
         std::stringstream ss;
-        ss << buildTemplate();
         ss << classOpen();
         ss << buildConstructor();
         ss << buildFields();
@@ -177,14 +180,14 @@ struct classScaffold {
     std::string defineVisitor() const {
         std::stringstream ss;
 
-        ss << "template <typename T>" << ENDL;
         ss << "class Visitor {" << ENDL;
+        ss << "public:" << ENDL;
 
         for(const classScaffold subclass : subclasses) {
             std::string lowClassName = subclass.className;
             lowClassName[0] = tolower(lowClassName[0]);
-            ss << "virtual T visit" << subclass.className << className
-                << "(typename " << className << "<T>::" << subclass.className << " & expr);" << ENDL;
+            ss << "virtual void* visit" << subclass.className << className
+                << "(typename " << className << "::" << subclass.className << " *expr);" << ENDL;
         }
 
         ss << "};" << ENDL;
@@ -233,20 +236,19 @@ void defineAst(const std::string& outputDir, const std::string& baseName, const 
     }
 
     // visitor 정의
-    fs << "template <typename T>" << ENDL;
     fs << "class Visitor;" << ENDL;
 
     // base class 생성
     const classScaffold baseClass = classScaffold("Expr", subclasses);
     fs << baseClass.defineClass() << ENDL;
 
+    // visitor 생성
+    fs << baseClass.defineVisitor() << ENDL;
+
     // base class 상속한 classes 생성
     for(const auto& subclass : subclasses) {
         fs << subclass.defineSubClass() << ENDL;
     }
-
-    // visitor 생성
-    fs << baseClass.defineVisitor() << ENDL;
 
 }
 

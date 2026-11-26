@@ -1,7 +1,5 @@
-#include "main.cpp"
-template <typename T>
+#include "Scanner.cpp"
 class Visitor;
-template <typename T>
 class Expr {
 public:
 Expr(){}
@@ -9,51 +7,48 @@ class Binary;
 class Grouping;
 class Literal;
 class Unary;
-virtual T accept(Visitor<T> &visitor);
+virtual void* accept(Visitor *visitor);
 };
-template <typename T>
-class Expr<T>::Binary: Expr {
+class Visitor {
 public:
-Binary(Expr left, Token op, Expr right): left(left), op(op), right(right){}
-Expr left;
-Token op;
-Expr right;
-T accept(Visitor<T> &visitor) override {
-return visitor.acceptBinaryExpr(*this);
+virtual void* visitBinaryExpr(typename Expr::Binary *expr);
+virtual void* visitGroupingExpr(typename Expr::Grouping *expr);
+virtual void* visitLiteralExpr(typename Expr::Literal *expr);
+virtual void* visitUnaryExpr(typename Expr::Unary *expr);
+};
+
+class Expr::Binary: public Expr {
+public:
+Binary(Expr *left, Token *op, Expr *right): left(left), op(op), right(right){}
+Expr *left;
+Token *op;
+Expr *right;
+void* accept(Visitor *visitor) override {
+return visitor->visitBinaryExpr(this);
 }
 };
-template <typename T>
-class Expr<T>::Grouping: Expr {
+class Expr::Grouping: public Expr {
 public:
-Grouping(Expr expression): expression(expression){}
-Expr expression;
-T accept(Visitor<T> &visitor) override {
-return visitor.acceptGroupingExpr(*this);
+Grouping(Expr *expression): expression(expression){}
+Expr *expression;
+void* accept(Visitor *visitor) override {
+return visitor->visitGroupingExpr(this);
 }
 };
-template <typename T>
-class Expr<T>::Literal: Expr {
+class Expr::Literal: public Expr {
 public:
 Literal(void* value): value(value){}
 void* value;
-T accept(Visitor<T> &visitor) override {
-return visitor.acceptLiteralExpr(*this);
+void* accept(Visitor *visitor) override {
+return visitor->visitLiteralExpr(this);
 }
 };
-template <typename T>
-class Expr<T>::Unary: Expr {
+class Expr::Unary: public Expr {
 public:
-Unary(Token op, Expr right): op(op), right(right){}
-Token op;
-Expr right;
-T accept(Visitor<T> &visitor) override {
-return visitor.acceptUnaryExpr(*this);
+Unary(Token *op, Expr *right): op(op), right(right){}
+Token *op;
+Expr *right;
+void* accept(Visitor *visitor) override {
+return visitor->visitUnaryExpr(this);
 }
-};
-template <typename T>
-class Visitor {
-virtual T visitBinaryExpr(typename Expr<T>::Binary & expr);
-virtual T visitGroupingExpr(typename Expr<T>::Grouping & expr);
-virtual T visitLiteralExpr(typename Expr<T>::Literal & expr);
-virtual T visitUnaryExpr(typename Expr<T>::Unary & expr);
 };
