@@ -40,6 +40,7 @@ struct Token {
     void* literal;
     size_t line;
     std::string toString() const;
+    Token(TokenType type, std::string lexeme, void* literal, size_t line) : type(type), lexeme(std::move(lexeme)), literal(literal), line(line) {}
 };
 
 inline std::string Token::toString() const {
@@ -49,3 +50,12 @@ inline std::string Token::toString() const {
     std::string now = ss.str();
     return now;
 }
+
+class Scanner {
+    private:
+        class impl;
+        impl *impl_;
+    public:
+    Scanner(std::string& src);
+    std::vector<Token>&& scanTokens();
+};
