@@ -8,7 +8,7 @@ namespace Lox {
         std::cerr << "[line " << line << "] Error" << where << ": " << message << std::endl;
     }
 
-    void error(size_t line, std::string message) {
+    static void error(size_t line, std::string message) {
         Lox::report(line, "", message);
     }
 }
