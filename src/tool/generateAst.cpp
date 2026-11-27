@@ -209,7 +209,7 @@ std::vector<Field> buildFields(const std::string& fieldList) {
 }
 
 void defineAst(const std::string& outputDir, const std::string& baseName, const std::vector<std::string> types) {
-    std::string path = outputDir + "/" + baseName + ".cpp";
+    std::string path = outputDir + "/" + baseName + ".h";
     std::cout << "saving path: " << path << std::endl;
 
     std::ofstream fs(path);
@@ -218,7 +218,8 @@ void defineAst(const std::string& outputDir, const std::string& baseName, const 
         exit(1);
     }
 
-    fs << "#include \"Scanner.cpp\"\n";
+    fs << "#pragma once\n";
+    fs << "#include \"Lox.h\"\n";
 
     std::vector<classScaffold> subclasses;
     for(const std::string& type : types) {
