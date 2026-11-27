@@ -9,3 +9,6 @@ compile: $(OBJECTS)
 
 generateAst.o: generateAst.cpp
 	$(CC) -c generateAst.cpp
+
+clean:
+	del /s *.exe *.o
