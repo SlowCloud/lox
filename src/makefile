@@ -3,14 +3,12 @@ OBJECTS = *.o
 FILES += main.cpp
 FILES += Scanner.cpp
 FILES += Lox.cpp
-FILES += Expr.h
-FILES += Lox.h
 
 cmp: $(OBJECTS)
-	$(CC) -o main.exe $(OBJECTS)
+	$(CC) $(OBJECTS) -o main.exe
 
 dbg: $(OBJECTS)
-	$(CC) -g -o main.exe $(OBJECTS)
+	$(CC) $(OBJECTS) -g -o main.exe
 
 run: cmp
 	main.exe
