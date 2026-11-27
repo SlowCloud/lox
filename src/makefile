@@ -1,14 +1,22 @@
 CC = clang
-OBJECTS = main.o
+OBJECTS = *.o
+FILES += main.cpp
+FILES += Scanner.cpp
+FILES += Lox.cpp
+FILES += Expr.h
+FILES += Lox.h
+
+cmp: $(OBJECTS)
+	$(CC) -o main.exe $(OBJECTS)
 
 dbg: $(OBJECTS)
 	$(CC) -g -o main.exe $(OBJECTS)
 
-cp: $(OBJECTS)
-	$(CC) -o main.exe $(OBJECTS)
-
-run: cp
+run: cmp
 	main.exe
 
-main.o: main.cpp
-	$(CC) -c main.cpp
+$(OBJECTS): $(FILES)
+	$(CC) -c *.cpp
+
+clean:
+	del *.o *.exe
