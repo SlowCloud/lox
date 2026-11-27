@@ -1,16 +1,12 @@
+#pragma once
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <vector>
 
 namespace Lox {
-    static void report(size_t line, std::string where, std::string message) {
-        std::cerr << "[line " << line << "] Error" << where << ": " << message << std::endl;
-    }
-
-    static void error(size_t line, std::string message) {
-        Lox::report(line, "", message);
-    }
+    void report(size_t line, std::string where, std::string message);
+    void error(size_t line, std::string message);
 }
 
 enum TokenType {
@@ -53,9 +49,26 @@ inline std::string Token::toString() const {
 
 class Scanner {
     private:
-        class impl;
-        impl *impl_;
-    public:
-    Scanner(std::string& src);
-    std::vector<Token>&& scanTokens();
+    const std::string& src;
+    std::vector<Token> tokens;
+    size_t start, current, line;
+
+    std::string *substr(int s, int e);
+    bool isAtEnd();
+    char advance();
+    void addToken(TokenType type);
+    void addToken(TokenType type, void *literal);
+    bool match(char expected);
+    char peek();
+    char peekNext();
+    void String();
+    bool isDigit(char c);
+    void number();
+    bool isAlpha(char c);
+    bool isAlphaNumeric(char c);
+    void identifier();
+    void scanToken();
+  public:
+    Scanner(std::string &src);
+    std::vector<Token> &&scanTokens();
 };
