@@ -2,15 +2,13 @@
 #include <iostream>
 #include <string>
 
-#include "Scanner.cpp"
+#include "Lox.h"
 
 using namespace std;
 
-void run(std::string line) {
-    Scanner scanner(line);
-
+void run(std::string&& line) {
+    Scanner scanner(std::move(line));
     vector<Token> tokens = scanner.scanTokens();
-
     for(const Token& token : tokens) {
         cout << token.toString() << endl;
     }
@@ -24,7 +22,7 @@ void runPrompt() {
     for(;;) {
         cout << "> ";
         getline(cin, line);
-        run(line);
+        run(std::move(line));
     }
 }
 
