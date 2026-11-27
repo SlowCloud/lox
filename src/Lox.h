@@ -49,7 +49,7 @@ inline std::string Token::toString() const {
 
 class Scanner {
     private:
-    const std::string& src;
+    const std::string src;
     std::vector<Token> tokens;
     size_t start, current, line;
 
@@ -69,6 +69,6 @@ class Scanner {
     void identifier();
     void scanToken();
   public:
-    Scanner(std::string &src);
-    std::vector<Token> &&scanTokens();
+    Scanner(std::string &&src);
+    std::vector<Token> scanTokens();
 };

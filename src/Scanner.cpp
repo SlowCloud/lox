@@ -22,10 +22,19 @@ static std::map<std::string, TokenType> keywords = {
   {"while",  WHILE},
 };
 
-Scanner::Scanner(std::string& src): src(src), tokens() {
+Scanner::Scanner(std::string&& src): src(std::move(src)), tokens() {
   start = 0;
   current = 0;
   line = 1;
+}
+
+std::vector<Token> Scanner::scanTokens() {
+    while (!isAtEnd()) {
+        start = current;
+        scanToken();
+    }
+    tokens.push_back(Token(END_OF_FILE, "", nullptr, line));
+    return tokens;
 }
 
 void Scanner::scanToken() {
