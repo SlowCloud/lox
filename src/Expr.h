@@ -9,14 +9,14 @@ class Grouping;
 class Literal;
 class Unary;
 class Visitor;
-virtual void* accept(Visitor *visitor);
+virtual void* accept(Visitor *visitor) = 0;
 };
 class Expr::Visitor {
 public:
-virtual void* visitBinaryExpr(typename Expr::Binary *expr);
-virtual void* visitGroupingExpr(typename Expr::Grouping *expr);
-virtual void* visitLiteralExpr(typename Expr::Literal *expr);
-virtual void* visitUnaryExpr(typename Expr::Unary *expr);
+virtual void* visitBinaryExpr(typename Expr::Binary *expr) = 0;
+virtual void* visitGroupingExpr(typename Expr::Grouping *expr) = 0;
+virtual void* visitLiteralExpr(typename Expr::Literal *expr) = 0;
+virtual void* visitUnaryExpr(typename Expr::Unary *expr) = 0;
 };
 
 class Expr::Binary: public Expr {

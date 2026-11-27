@@ -123,7 +123,7 @@ struct classScaffold {
     }
 
     std::string buildVisitorAccept() const {
-        return "virtual void* accept(Visitor *visitor);\n";
+        return "virtual void* accept(Visitor *visitor) = 0;\n";
     }
 
     std::string buildVisitorAcceptConcrete() const {
@@ -192,7 +192,7 @@ struct classScaffold {
             std::string lowClassName = subclass.className;
             lowClassName[0] = tolower(lowClassName[0]);
             ss << "virtual void* visit" << subclass.className << className
-                << "(typename " << className << "::" << subclass.className << " *expr);" << ENDL;
+                << "(typename " << className << "::" << subclass.className << " *expr) = 0;" << ENDL;
         }
 
         ss << "};" << ENDL;
