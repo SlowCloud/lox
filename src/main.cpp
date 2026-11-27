@@ -4,13 +4,11 @@
 
 #include "Lox.h"
 
-using namespace std;
-
 void run(std::string&& line) {
     Scanner scanner(std::move(line));
-    vector<Token> tokens = scanner.scanTokens();
+    std::vector<Token> tokens = scanner.scanTokens();
     for(const Token& token : tokens) {
-        cout << token.toString() << endl;
+        std::cout << token.toString() << std::endl;
     }
 }
 
@@ -18,10 +16,10 @@ void run(std::string&& line) {
 //
 // }
 void runPrompt() {
-    string line;
+    std::string line;
     for(;;) {
-        cout << "> ";
-        getline(cin, line);
+        std::cout << "> ";
+        getline(std::cin, line);
         run(std::move(line));
     }
 }
