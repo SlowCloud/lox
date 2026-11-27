@@ -118,6 +118,10 @@ struct classScaffold {
         return ss.str();
     }
 
+    std::string buildVisitorClass() const {
+        return "class Visitor;\n";
+    }
+
     std::string buildVisitorAccept() const {
         return "virtual void* accept(Visitor *visitor);\n";
     }
@@ -161,6 +165,7 @@ struct classScaffold {
         ss << buildConstructor();
         ss << buildFields();
         ss << buildSubclasses();
+        ss << buildVisitorClass();
         ss << buildVisitorAccept();
         ss << classClose();
         return ss.str();
@@ -180,7 +185,7 @@ struct classScaffold {
     std::string defineVisitor() const {
         std::stringstream ss;
 
-        ss << "class Visitor {" << ENDL;
+        ss << "class " << className << "::Visitor {" << ENDL;
         ss << "public:" << ENDL;
 
         for(const classScaffold subclass : subclasses) {

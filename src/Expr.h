@@ -8,9 +8,10 @@ class Binary;
 class Grouping;
 class Literal;
 class Unary;
+class Visitor;
 virtual void* accept(Visitor *visitor);
 };
-class Visitor {
+class Expr::Visitor {
 public:
 virtual void* visitBinaryExpr(typename Expr::Binary *expr);
 virtual void* visitGroupingExpr(typename Expr::Grouping *expr);
